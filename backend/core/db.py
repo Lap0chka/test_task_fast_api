@@ -20,7 +20,6 @@ async def create_tables() -> None:
     """
     Create all tables in the database based on SQLAlchemy Base metadata.
     """
-    print("Creating tables...")
     logger.info("Creating tables...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -51,8 +50,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     Lifespan context manager for FastAPI application.
     """
-    logger.info("Initializing database on startup...")
-    await delete_tables()
     await create_tables()
     try:
         yield

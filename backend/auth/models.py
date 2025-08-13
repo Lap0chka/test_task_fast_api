@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from base.models import BaseTimeStampModel
 
 
-class User(BaseTimeStampModel):
+class UserModel(BaseTimeStampModel):
     """
     SQLAlchemy model representing a user in the system.
     """

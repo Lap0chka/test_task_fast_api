@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Any
+
+from sqlalchemy.engine.result import Result
 
 
 class AbstractRepository(ABC):
@@ -6,16 +9,19 @@ class AbstractRepository(ABC):
     async def create_one(self, data: dict) -> int:
         raise NotImplementedError
 
-    @abstractmethod
-    async def get_one(self, id: int) -> dict:
+    async def _get(self, *filters: Any, **filters_by: Any) -> Result[Any]:
         raise NotImplementedError
 
     @abstractmethod
-    async def update_one(self, id: int, data: dict) -> dict:
+    async def get_one(self, *filters: Any, **filters_by: Any) -> dict | None:
         raise NotImplementedError
 
     @abstractmethod
-    async def delete_one(self, id: int) -> int:
+    async def update(self, id: int, data: dict) -> dict:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def delete(self, id: int) -> int:
         raise NotImplementedError
 
     async def get_all_or_by_filter(self, **kwargs) -> list[dict]:
