@@ -42,7 +42,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     Asynchronous context manager that yields a SQLAlchemy AsyncSession.
     """
     logger.info("Creating a new async database session.")
-    async with async_sessionmaker() as session:
+    async with new_session() as session:
         yield session
 
 
@@ -52,6 +52,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Lifespan context manager for FastAPI application.
     """
     logger.info("Initializing database on startup...")
+    await delete_tables()
     await create_tables()
     try:
         yield

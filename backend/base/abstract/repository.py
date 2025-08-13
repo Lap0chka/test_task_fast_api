@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 
 class AbstractRepository(ABC):
-
     @abstractmethod
     async def create_one(self, data: dict) -> int:
         raise NotImplementedError

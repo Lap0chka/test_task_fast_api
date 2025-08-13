@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-class UserRegister(BaseModel):
+from base.schema import BaseSchema
+
+
+class CreateUserRequestSchema(BaseSchema):
+    """Pydantic model for create user."""
     username: str = Field(min_length=3, max_length=64)
     password: str = Field(min_length=6, max_length=128)
-
-class UserOut(BaseModel):
-    id: int
-    username: str

@@ -2,8 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column
-
-from backend.core import Base
+from core.db import Base
 
 
 class BaseUUIDModel(Base):

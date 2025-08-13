@@ -1,10 +1,33 @@
 import uuid
 
 from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
+from base.models import BaseTimeStampModel
 
-from backend.base.models import BaseTimeStampModel
+
+class User(BaseTimeStampModel):
+    """
+    SQLAlchemy model representing a user in the system.
+    """
+
+    __tablename__ = 'users'
+
+    username: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+    )
+
+    password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        default=True,
+    )
+
 
 
 class RefreshTokenModel(BaseTimeStampModel):

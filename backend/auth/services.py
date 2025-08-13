@@ -1,21 +1,18 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from users.models import User
+from .repository import UserRepository
+from .schemas import CreateUserRequestSchema
+from base.abstract import AbstractRepository
+from base.services import BaseService
 
 
-class AuthService:
-    def __init__(self, db: AsyncSession):
-        self.db = db
+class UserService(BaseService):
+    """Service for user."""
+    def __init__(self, db_session: AsyncSession, repo: AbstractRepository=None):
+        super().__init__(db_session)
+        self.repo = repo or UserRepository()
 
-    async def is_username_taken(self, username: str) -> bool:
-        stmt = select(User.id).where(func.lower(User.username) == username.lower())
-        res = await self.db.execute(stmt)
-        return res.scalar_one_or_none() is not None
-
-    async def create_user(self, username: str, password: str) -> User:
-        user = User(username=username, password_hash="zdsadasdad12345")
-        self.db.add(user)
-        await self.db.commit()
-        await self.db.refresh(user)
-        return user
+    async def create_new_user(self, user: CreateUserRequestSchema) -> int:
+        users_dict = user.model_dump()
+        user_id = await self.repo.create_one(users_dict)
+        return user_id
