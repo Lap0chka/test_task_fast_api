@@ -6,14 +6,14 @@ from sqlalchemy.orm import Mapped, mapped_column
 from backend.core import Base
 
 
-class BaseUUID(Base):
+class BaseUUIDModel(Base):
     """Base model for a UUID primary key."""
 
     __abstract__ = True
     id: Mapped[int] = mapped_column(primary_key=True)
 
 
-class BaseTimeStamp(BaseUUID):
+class BaseTimeStampModel(BaseUUIDModel):
     """Base model for timestamp fields."""
 
     __abstract__ = True
@@ -27,3 +27,6 @@ class BaseTimeStamp(BaseUUID):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+
+

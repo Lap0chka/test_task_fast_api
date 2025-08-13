@@ -1,29 +1,59 @@
-import os
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from fastapi import FastAPI
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import declarative_base
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg2://postgres:postgres@localhost:5432/booksdb",
-)
+logger = logging.getLogger(__name__)
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True, future=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 Base = declarative_base()
 
-DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/mydb"
+engine = create_async_engine("sqlite+aiosqlite:///books.db")
 
-engine = create_async_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
-
-AsyncSessionLocal = sessionmaker(
-    engine,
-    expire_on_commit=False,
-    class_=AsyncSession,
-)
+new_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
-async def get_db():
-    async with AsyncSessionLocal() as session:
+async def create_tables() -> None:
+    """
+    Create all tables in the database based on SQLAlchemy Base metadata.
+    """
+    print("Creating tables...")
+    logger.info("Creating tables...")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Tables created successfully.")
+
+
+async def delete_tables() -> None:
+    """
+    Drop all tables from the database.
+    """
+    logger.info("Dropping tables...")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    logger.info("Tables dropped successfully.")
+
+
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Asynchronous context manager that yields a SQLAlchemy AsyncSession.
+    """
+    logger.info("Creating a new async database session.")
+    async with async_sessionmaker() as session:
         yield session
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """
+    Lifespan context manager for FastAPI application.
+    """
+    logger.info("Initializing database on startup...")
+    await create_tables()
+    try:
+        yield
+    finally:
+        logger.info("Application shutdown process complete.")

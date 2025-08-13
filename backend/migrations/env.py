@@ -1,12 +1,13 @@
+import asyncio
 from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
-import asyncio
+from sqlalchemy.ext.asyncio import create_async_engine
 
+from backend import auth  # noqa: F401
+from backend.auth import models  # noqa: F401
 from core.db import Base
-from app import auth  # noqa: F401  (важно импортнуть пакет с моделями)
-from app.auth import models  # noqa: F401
 
 config = context.config
 if config.get_main_option("sqlalchemy.url") is None:

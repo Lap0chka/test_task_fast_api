@@ -4,10 +4,10 @@ from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.base.models import BaseTimeStamp
+from backend.base.models import BaseTimeStampModel
 
 
-class RefreshToken(BaseTimeStamp):
+class RefreshTokenModel(BaseTimeStampModel):
     """SQLAlchemy model representing a refresh token session.
     """
 

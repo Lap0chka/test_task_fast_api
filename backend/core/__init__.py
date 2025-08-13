@@ -1,1 +1,1 @@
-from .db_config import Base
+from .db import Base

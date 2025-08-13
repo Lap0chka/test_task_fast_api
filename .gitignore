@@ -167,3 +167,4 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 /venv_test_task_fa/
+/backend/books.db
