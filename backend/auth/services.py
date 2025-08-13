@@ -4,6 +4,7 @@ from .repository import UserRepository
 from .schemas import CreateUserRequestSchema
 from base.abstract import AbstractRepository
 from base.services import BaseService
+from .utils import hash_password
 
 
 class UserService(BaseService):
@@ -14,5 +15,5 @@ class UserService(BaseService):
 
     async def create_new_user(self, user: CreateUserRequestSchema) -> int:
         users_dict = user.model_dump()
-        user_id = await self.repo.create_one(users_dict)
-        return user_id
+        users_dict["password"] = hash_password(users_dict["password"])
+        return await self.repo.create_one(users_dict)

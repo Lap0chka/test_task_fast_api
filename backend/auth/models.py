@@ -31,7 +31,8 @@ class User(BaseTimeStampModel):
 
 
 class RefreshTokenModel(BaseTimeStampModel):
-    """SQLAlchemy model representing a refresh token session.
+    """
+    SQLAlchemy model representing a refresh token session.
     """
 
     __tablename__ = 'refresh_tokens'
