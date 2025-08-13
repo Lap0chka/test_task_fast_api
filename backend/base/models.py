@@ -1,8 +1,8 @@
 from datetime import datetime
 
+from core.db import Base
 from sqlalchemy import TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column
-from core.db import Base
 
 
 class BaseUUIDModel(Base):

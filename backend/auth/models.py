@@ -1,15 +1,13 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Integer
-from sqlalchemy import String
+from base.models import BaseTimeStampModel
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-from base.models import BaseTimeStampModel
 
 
 class UserModel(BaseTimeStampModel):
-    """
-    SQLAlchemy model representing a user in the system.
+    """SQLAlchemy model representing a user in the system.
     """
 
     __tablename__ = 'users'
@@ -31,8 +29,7 @@ class UserModel(BaseTimeStampModel):
 
 
 class RefreshTokenModel(BaseTimeStampModel):
-    """
-    SQLAlchemy model representing a refresh token session.
+    """SQLAlchemy model representing a refresh token session.
     """
 
     __tablename__ = 'refresh_tokens'

@@ -1,9 +1,8 @@
 import logging
 
-from fastapi import FastAPI
-
 from auth.router import auth_router
 from core.db import lifespan
+from fastapi import FastAPI
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,13 @@
 from typing import Any, TypeVar
 
-from sqlalchemy import select, update, delete
+from core.db import Base, new_session
+from sqlalchemy import select, update
 from sqlalchemy.engine.result import Result
-from sqlalchemy.sql.dml import Update, Delete
+from sqlalchemy.sql.dml import Delete, Update
 from sqlalchemy.sql.expression import insert
 from sqlalchemy.sql.selectable import Select
 
 from base.abstract.repository import AbstractRepository
-from core.db import new_session, Base
 
 Model = TypeVar('Model', bound=Base)
 
@@ -38,10 +38,8 @@ class SQLAlchemyRepository(AbstractRepository):
             return await session.execute(query)
 
     async def get_one(self, *filters: Any, **filters_by: Any) -> Model | None:
+        """Retrieve a single record matching the specified filters.
         """
-        Retrieve a single record matching the specified filters.
-        """
-
         result: Result[Any] = await self._get(*filters, **filters_by)
         return result.scalar_one_or_none()
 
@@ -51,8 +49,7 @@ class SQLAlchemyRepository(AbstractRepository):
         *filters: Any,
         **filters_by: Any,
     ) -> Model | None:
-        """
-        Update records matching the specified filters with provided data.
+        """Update records matching the specified filters with provided data.
         """
         async with new_session() as session:
             query: Update = (
@@ -70,8 +67,7 @@ class SQLAlchemyRepository(AbstractRepository):
             *filters: Any,
             **filters_by: Any,
     ) -> None:
-        """
-        Delete records matching the specified filters.
+        """Delete records matching the specified filters.
         """
         async with new_session() as session:
             query: Delete = (

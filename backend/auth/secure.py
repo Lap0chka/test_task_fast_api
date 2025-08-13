@@ -2,8 +2,7 @@ from passlib.context import CryptContext
 
 
 class Hasher:
-    """
-    Utility class for password hashing and verification.
+    """Utility class for password hashing and verification.
     """
 
     _crypt_context: CryptContext = CryptContext(

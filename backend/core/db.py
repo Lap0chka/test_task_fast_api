@@ -1,9 +1,9 @@
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import declarative_base
 
@@ -17,8 +17,7 @@ new_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 async def create_tables() -> None:
-    """
-    Create all tables in the database based on SQLAlchemy Base metadata.
+    """Create all tables in the database based on SQLAlchemy Base metadata.
     """
     logger.info("Creating tables...")
     async with engine.begin() as conn:
@@ -27,8 +26,7 @@ async def create_tables() -> None:
 
 
 async def delete_tables() -> None:
-    """
-    Drop all tables from the database.
+    """Drop all tables from the database.
     """
     logger.info("Dropping tables...")
     async with engine.begin() as conn:
@@ -36,9 +34,8 @@ async def delete_tables() -> None:
     logger.info("Tables dropped successfully.")
 
 
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Asynchronous context manager that yields a SQLAlchemy AsyncSession.
+async def get_async_session() -> AsyncGenerator[AsyncSession]:
+    """Asynchronous context manager that yields a SQLAlchemy AsyncSession.
     """
     logger.info("Creating a new async database session.")
     async with new_session() as session:
@@ -46,9 +43,8 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """
-    Lifespan context manager for FastAPI application.
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+    """Lifespan context manager for FastAPI application.
     """
     await create_tables()
     try:

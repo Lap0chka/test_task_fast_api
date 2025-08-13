@@ -2,6 +2,12 @@ import uuid
 from calendar import timegm
 from datetime import UTC, datetime, timedelta
 
+from core.settings import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    ALGORITHM,
+    REFRESH_TOKEN_EXPIRE_DAYS,
+    SECRET_KEY,
+)
 from jose import JWTError, jwt
 
 from auth.exceptions import (
@@ -10,8 +16,6 @@ from auth.exceptions import (
     WrongCredentialsException,
 )
 from auth.models import RefreshTokenModel
-from core.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, \
-    REFRESH_TOKEN_EXPIRE_DAYS
 
 type access_token = dict[str, str | datetime]
 
@@ -101,10 +105,10 @@ class TokenManager:
         containing token details
         :raises: RefreshTokenException if the token has not expired
         """
-        current_date: datetime = datetime.now(UTC)
-        refresh_token_expire_date: datetime = (
-            refresh_token_model.created_at
-            + timedelta(seconds=refresh_token_model.expires_in)
+        current_date = datetime.now(UTC)  # aware
+        refresh_token_expire_date = (
+                refresh_token_model.created_at.replace(tzinfo=UTC)
+                + timedelta(seconds=refresh_token_model.expires_in)
         )
         if current_date >= refresh_token_expire_date:
             raise RefreshTokenException

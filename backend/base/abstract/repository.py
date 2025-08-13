@@ -1,7 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TypeVar
 
-from sqlalchemy.engine.result import Result
+from core.db import Base
+from sqlalchemy import (
+    Result,
+)
+
+Model = TypeVar('Model', bound=Base)
 
 
 class AbstractRepository(ABC):
@@ -13,7 +18,7 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_one(self, *filters: Any, **filters_by: Any) -> dict | None:
+    async def get_one(self, *filters: Any, **filters_by: Any) -> Model | None:
         raise NotImplementedError
 
     @abstractmethod

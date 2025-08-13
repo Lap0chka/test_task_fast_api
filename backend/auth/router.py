@@ -1,17 +1,19 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Response
-from fastapi import status
-from fastapi.security import OAuth2PasswordRequestForm
-
-from auth.models import UserModel
-from auth.schemas import CreateUserRequestSchema, Token
-from auth.services import UserService, AuthService
 from base.dependencies import get_service
 from base.schema import IDResponseSchema
-from core.settings import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, MAX_AGE_TOKEN, \
-    MAX_AGE_REFRESH_TOKEN
+from core.settings import (
+    MAX_AGE_ACCESS_TOKEN,
+    MAX_AGE_REFRESH_TOKEN,
+)
+from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.security import OAuth2PasswordRequestForm
+
+from auth.exceptions import RefreshTokenException
+from auth.models import UserModel
+from auth.schemas import CreateUserRequestSchema, Token
+from auth.services import AuthService, UserService
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -37,8 +39,7 @@ async def login_user(
         service: Annotated[AuthService, Depends(get_service(AuthService))],
         response: Response,
 ) -> Token:
-    """
-    Authenticate user and issue JWT access and refresh tokens.
+    """Authenticate user and issue JWT access and refresh tokens.
     """
     user: UserModel = await service.auth_user(
         username=form_data.username,
@@ -48,7 +49,7 @@ async def login_user(
     response.set_cookie(
         'access_token',
         token.access_token,
-        max_age=MAX_AGE_TOKEN,
+        max_age=MAX_AGE_ACCESS_TOKEN,
         httponly=True,
     )
     response.set_cookie(
@@ -66,8 +67,7 @@ async def refresh_token(
         response: Response,
         service: Annotated[AuthService, Depends(get_service(AuthService))],
 ) -> Token:
-    """
-    Refresh the access and refresh tokens.
+    """Refresh the access and refresh tokens.
     """
     token: Token = await service.refresh_token(
         refresh_token=uuid.UUID(request.cookies.get('refresh_token')),
@@ -75,16 +75,13 @@ async def refresh_token(
     response.set_cookie(
         'access_token',
         token.access_token,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=MAX_AGE_ACCESS_TOKEN,
         httponly=True,
     )
     response.set_cookie(
         'refresh_token',
         token.refresh_token,
-        max_age=REFRESH_TOKEN_EXPIRE_DAYS
-                * 30
-                * 24
-                * 60,
+        max_age=MAX_AGE_REFRESH_TOKEN,
         httponly=True,
     )
     return token
@@ -97,8 +94,12 @@ async def logout_user(
         service: Annotated[AuthService, Depends(get_service(AuthService))],
 ) -> dict[str, str]:
     """Log out the user."""
+    raw_token = request.cookies.get("refresh_token")
+    if not raw_token:
+        raise RefreshTokenException
 
-    await service.logout_user(request.cookies.get('refresh_token'))
+    await service.logout_user(str(raw_token))
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     return {'message': 'Logged out successfully'}
+
