@@ -3,6 +3,15 @@ plugins = ["sqlalchemy.ext.mypy.plugin"]
 strict = true
 local_partial_types = true
 warn_unreachable = true
+exclude = [
+    "migrations",
+    ".venv",
+    ".qodo",
+    "build",
+    "dist",
+    "tests/fixtures",
+    "__pycache__",
+]
 
 [tool.ruff]
 line-length = 80 # PEP8
