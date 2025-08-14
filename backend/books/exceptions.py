@@ -20,7 +20,7 @@ class BookNotFoundByIdException(HTTPException):
         """Initialize the CourseNotFoundByIdException with status 404."""
         super().__init__(
             status_code=404,
-            detail='Active course cannot be not found.',
+            detail='Active book cannot be not found.',
         )
 
 class ForgottenParametersException(HTTPException):

@@ -1,14 +1,10 @@
 import datetime as dt
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends
-from fastapi import Query
-
-from auth.dependencies import PermissionDependency
+from fastapi import APIRouter, Depends, Query, status
 from base.dependencies import get_service
 from base.schema import DeleteResponse
 from books.models import BookModel
-from books.permissions import Is_Authenticated
 from books.schemas import BookOutSchema, BookBase, AuthorSchema
 from books.services import BookService, AuthorService
 from core.settings import API_URL
@@ -16,13 +12,14 @@ from core.settings import API_URL
 book_router = APIRouter(
     prefix=f'{API_URL}/books',
     tags=["books"],
-    dependencies=[Depends(PermissionDependency([Is_Authenticated]))],
+    # dependencies=[Depends(PermissionDependency([Is_Authenticated]))],
 )
 
 author_router = APIRouter(
     prefix=f'{API_URL}/authors',
-    tags=["authors"], dependencies=[Depends(PermissionDependency([Is_Authenticated]))])
-
+    tags=["authors"],
+    # dependencies=[Depends(PermissionDependency([Is_Authenticated]))]
+)
 
 
 @book_router.get('/all', response_model=list[BookOutSchema])
@@ -41,20 +38,21 @@ async def get_all_books(
     return [BookOutSchema.model_validate(c) for c in books]
 
 
-@book_router.post('/', response_model=BookOutSchema)
+@book_router.post('/', response_model=BookOutSchema, status_code=status.HTTP_201_CREATED)
 async def create_book(
         book_schema: BookBase,
         service: Annotated[BookService, Depends(get_service(BookService))],
 ) -> BookOutSchema:
     """Endpoint to create a new book."""
-    course = await service.create_book(
+    book = await service.create_book(
         book_schema=book_schema
     )
-    return BookOutSchema.model_validate(course)
+
+    return BookOutSchema.model_validate(book)
 
 
 @book_router.get('/{book_id}', response_model=BookOutSchema)
-async def get_course(
+async def get_book(
         book_id: int,
         service: Annotated[BookService, Depends(get_service(BookService))],
 ) -> BookOutSchema:
@@ -86,10 +84,10 @@ async def update_book(
     """
     Update an existing book by its ID.
     """
-    updated_course = await service.update_book(
+    updated_books = await service.update_book(
         book_id=book_id, book_fields=book_fields
     )
-    return BookOutSchema.model_validate(updated_course)
+    return BookOutSchema.model_validate(updated_books)
 
 
 @book_router.delete("/{book_id}", response_model=DeleteResponse)

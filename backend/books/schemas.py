@@ -13,7 +13,7 @@ from core.settings import ALLOWED_GENRES
 
 class BookBase(BaseSchema):
     title: str = Field(min_length=1, max_length=255)
-    author_names: list[str] = Field(min_length=1)
+    author_names: list[str] = Field(default_factory=list)
     genres: list[Literal[*ALLOWED_GENRES]] = Field(min_length=1)
     published_year: int
 
@@ -37,7 +37,7 @@ class BookBase(BaseSchema):
 class BookOutSchema(BaseSchema):
     id: int
     title: str
-    authors: list[str]
+    authors: list[AuthorSchema] = Field(default_factory=list)
     genres: list[str]
     published_year: int
     created_at: datetime | None = None
@@ -52,9 +52,3 @@ class AuthorSchema(BaseSchema):
     name: str
 
 
-class BulkUploadResult(BaseSchema):
-    total: int
-    created: int
-    failed: int
-    created_ids: List[int]
-    errors: List[dict]

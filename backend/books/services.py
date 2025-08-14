@@ -12,7 +12,7 @@ from books.schemas import BookBase, AuthorSchema
 
 
 class BookService(BaseService):
-    """Service class for handling course-related business logic."""
+    """Service class for handling book-related business logic."""
 
     def __init__(self, db_session: AsyncSession, repo: AbstractRepository = None):
         super().__init__(db_session)
@@ -22,12 +22,12 @@ class BookService(BaseService):
     async def create_book(
             self, book_schema: BookBase
     ) -> BookModel:
-        """Create a new course in the database."""
+        """Create a new book in the database."""
         book_data = book_schema.model_dump()
         authors: list[AuthorModel] = await self.fetch_author(book_data["author_names"])
         del book_data["author_names"]
-        book: BookModel = await self.repo.create_one(book_data)
-        await self.repo.add_many_to_many(book, "authors", authors)
+        book: BookModel = await self.repo.create_one(book_data, True)
+        book: BookModel = await self.repo.add_many_to_many(book, "authors", authors)
         return book
 
     async def get_all_books(
@@ -81,7 +81,7 @@ class BookService(BaseService):
         filtered_books_fields: dict[str, str] = (
             self._validate_schema_for_update_request(book_fields)
         )
-
+        print(filtered_books_fields)
         updated_book: BookModel | None = await self.repo.update(
             filtered_books_fields, id=book_id,
         )
@@ -99,12 +99,13 @@ class BookService(BaseService):
         deleted_book: BookModel | None = await self.repo.delete(
             id=book_id,
         )
-        if not deleted_book:
+        if deleted_book == 0:
             raise BookNotFoundByIdException
 
 
+
 class AuthorService(BaseService):
-    """Service class for handling course-related business logic."""
+    """Service class for handling book-related business logic."""
 
     def __init__(self, db_session: AsyncSession, repo: AbstractRepository = None):
         super().__init__(db_session)

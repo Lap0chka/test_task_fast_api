@@ -2,16 +2,14 @@ import datetime as dt
 from typing import Any, TypeVar, cast, Sequence
 
 from sqlalchemy import (
-    Delete,
     Result,
     Select,
-    Update,
     and_,
-    desc,
     or_,
     select,
-    update,
 )
+from sqlalchemy import delete as sa_delete
+from sqlalchemy import update as sa_update
 from sqlalchemy.sql.expression import insert
 
 from base.abstract.repository import AbstractRepository
@@ -22,7 +20,7 @@ Model = TypeVar('Model', bound=Base)
 class SQLAlchemyRepository(AbstractRepository):
     model = None
 
-    async def create_one(self, data: dict) -> Model:
+    async def create_one(self, data: dict, return_session=False) -> Model:
         async with new_session() as session:
             stmt = insert(self.model).values(**data).returning(self.model)
             res = await session.execute(stmt)
@@ -84,15 +82,25 @@ class SQLAlchemyRepository(AbstractRepository):
         """Update records matching the specified filters with provided data.
         """
         async with new_session() as session:
-            query: Update = (
-                update(self.model)
+            cols = {c.key for c in self.model.__mapper__.column_attrs}
+            payload = {k: v for k, v in update_data.items() if k in cols}
+
+            stmt = (
+                sa_update(self.model)
                 .where(*filters)
                 .filter_by(**filters_by)
-                .values(update_data)
-                .returning(self.model)
+                .values(**payload)
+                .returning(self.model.id)
             )
-            result = await session.execute(query)
-            return result.scalar_one_or_none()
+            result = await session.execute(stmt)
+            row = result.first()
+
+            if not row:
+                return None
+
+            obj_id = row[0]
+
+            return await session.get(self.model, obj_id)
 
     async def delete(
             self,
@@ -102,10 +110,11 @@ class SQLAlchemyRepository(AbstractRepository):
         """Delete records matching the specified filters.
         """
         async with new_session() as session:
-            query: Delete = (
-                Delete(self.model).where(*filters).filter_by(**filters_by)
-            )
-            await session.execute(query)
+            stmt = sa_delete(self.model).where(*filters).filter_by(**filters_by)
+            res = await session.execute(stmt)
+
+            return res.rowcount or 0
+
 
     async def get_ids_by_lst(self, lst: list[str]) -> list[model]:
         async with new_session() as session:
