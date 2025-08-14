@@ -169,3 +169,4 @@ cython_debug/
 /venv_test_task_fa/
 /backend/books.db
 /backend/migrations/
+/backend/alembic.ini
