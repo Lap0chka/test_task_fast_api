@@ -2,16 +2,15 @@ from passlib.context import CryptContext
 
 
 class Hasher:
-    """Utility class for password hashing and verification.
-    """
+    """Utility class for password hashing and verification."""
 
     _crypt_context: CryptContext = CryptContext(
-        schemes=['bcrypt'],
-        deprecated='auto',
+        schemes=["bcrypt"],
+        deprecated="auto",
     )
 
     @classmethod
-    def hash_password(cls: type['Hasher'], unhashed_password: str) -> str:
+    def hash_password(cls: type["Hasher"], unhashed_password: str) -> str:
         """Return a hash of password.
 
         :param unhashed_password: A password to hash
@@ -21,7 +20,7 @@ class Hasher:
 
     @classmethod
     def verify_password(
-        cls: type['Hasher'],
+        cls: type["Hasher"],
         unhashed_password: str,
         hashed_password: str,
     ) -> bool:

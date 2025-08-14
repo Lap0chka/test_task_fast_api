@@ -1,23 +1,22 @@
 from typing import Annotated
 
-from fastapi.params import Security, Depends
+from auth.models import UserModel
+from auth.services import AuthService, UserService
+from base.abstract import AbstractPermissionService
+from base.dependencies import get_service
+from fastapi.params import Depends, Security
 from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 
-from auth.models import UserModel
-from auth.services import AuthService, UserService
-from base.dependencies import get_service
-from base.abstract import AbstractPermissionService
-
 oauth_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
-    tokenUrl='/auth/login',
+    tokenUrl="/auth/login",
 )
 
 
 async def get_user_from_jwt(
-        token: Annotated[str, Security(oauth_scheme)],
-        auth_service: Annotated[AuthService, Depends(get_service(AuthService))],
-        user_service: Annotated[UserService, Depends(get_service(UserService))],
+    token: Annotated[str, Security(oauth_scheme)],
+    auth_service: Annotated[AuthService, Depends(get_service(AuthService))],
+    user_service: Annotated[UserService, Depends(get_service(UserService))],
 ) -> UserModel:
     """Return FastAPI dependencies for authentication and validation.
 
@@ -40,9 +39,9 @@ class PermissionDependency:
         self.permissions = permissions
 
     async def __call__(
-            self,
-            request: Request,
-            user: Annotated[UserModel, Depends(get_user_from_jwt)],
+        self,
+        request: Request,
+        user: Annotated[UserModel, Depends(get_user_from_jwt)],
     ) -> UserModel:
         """Callable used as a FastAPI dependency.
 

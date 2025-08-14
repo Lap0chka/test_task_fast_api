@@ -13,9 +13,9 @@ class CreateUserRequestSchema(BaseSchema):
 
 class UserResponseSchema(BaseSchema):
     """Pydantic model for user response."""
+
     id: int = Field()
     username: str = Field(min_length=3, max_length=64)
-
 
 
 class Token(BaseSchema):
@@ -23,7 +23,7 @@ class Token(BaseSchema):
 
     access_token: str
     refresh_token: str
-    token_type: str = 'Bearer'  # noqa: S105
+    token_type: str = "Bearer"  # noqa: S105
 
 
 class CreateRefreshTokenSchema(BaseSchema):

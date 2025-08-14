@@ -8,9 +8,8 @@ class AuthorNotExistException(HTTPException):
         """Initialize the wrong authors name with status 404."""
         super().__init__(
             status_code=404,
-            detail='Author with this names can not be found',
+            detail="Author with this names can not be found",
         )
-
 
 
 class BookNotFoundByIdException(HTTPException):
@@ -20,8 +19,9 @@ class BookNotFoundByIdException(HTTPException):
         """Initialize the CourseNotFoundByIdException with status 404."""
         super().__init__(
             status_code=404,
-            detail='Active book cannot be not found.',
+            detail="Active book cannot be not found.",
         )
+
 
 class ForgottenParametersException(HTTPException):
     """Custom exception for when a forgotten parameter is missing."""
@@ -30,7 +30,7 @@ class ForgottenParametersException(HTTPException):
         """Initialize the ForgottenParametersException with status 422."""
         super().__init__(
             status_code=422,
-            detail='Not all parameters was filled',
+            detail="Not all parameters was filled",
         )
 
 

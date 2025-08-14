@@ -1,8 +1,7 @@
 from typing import final
 
-from pydantic import BaseModel, ConfigDict
-
 from books.exceptions import ForgottenParametersException
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseSchema(BaseModel):
@@ -13,5 +12,3 @@ class BaseSchema(BaseModel):
 
 class DeleteResponse(BaseModel):
     status: str
-
-

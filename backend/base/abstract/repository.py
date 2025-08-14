@@ -2,11 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
 from core.db import Base
-from sqlalchemy import (
-    Result,
-)
+from sqlalchemy import Result
 
-Model = TypeVar('Model', bound=Base)
+Model = TypeVar("Model", bound=Base)
 
 
 class AbstractRepository(ABC):
@@ -31,7 +29,3 @@ class AbstractRepository(ABC):
 
     async def get_all_or_by_filter(self, **kwargs) -> list[dict]:
         raise NotImplementedError
-
-
-
-

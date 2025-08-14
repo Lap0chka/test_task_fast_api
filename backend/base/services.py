@@ -1,17 +1,15 @@
 from typing import final
 
+from books.exceptions import ForgottenParametersException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from books.exceptions import ForgottenParametersException
 
 
 class BaseService:
     """Base class for services."""
 
     def __init__(self, db_session: AsyncSession) -> None:
-        """Initialize a new BaseService instance.
-        """
+        """Initialize a new BaseService instance."""
         self._session: AsyncSession = db_session
 
     @property
@@ -22,7 +20,7 @@ class BaseService:
     @staticmethod
     @final
     def _validate_schema_for_update_request(
-            schema: BaseModel,
+        schema: BaseModel,
     ) -> dict[str, str]:
         schema_fields: dict[str, str] = schema.model_dump(
             exclude_none=True,

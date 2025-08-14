@@ -2,6 +2,12 @@ import uuid
 from calendar import timegm
 from datetime import UTC, datetime, timedelta
 
+from auth.exceptions import (
+    AccessTokenExpiredException,
+    RefreshTokenException,
+    WrongCredentialsException,
+)
+from auth.models import RefreshTokenModel
 from core.settings import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     ALGORITHM,
@@ -9,13 +15,6 @@ from core.settings import (
     SECRET_KEY,
 )
 from jose import JWTError, jwt
-
-from auth.exceptions import (
-    AccessTokenExpiredException,
-    RefreshTokenException,
-    WrongCredentialsException,
-)
-from auth.models import RefreshTokenModel
 
 type access_token = dict[str, str | datetime]
 
@@ -39,18 +38,15 @@ class TokenManager:
         :return: Bearer token string containing the JWT
         """
         to_encode: access_token = {
-            'sub': str(user_id),
-            'exp': datetime.now(UTC)
-            + timedelta(
-                minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-            ),
+            "sub": str(user_id),
+            "exp": datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
         }
         encoded_jwt: str = jwt.encode(
             to_encode,
             SECRET_KEY,
             algorithm=ALGORITHM,
         )
-        return f'Bearer {encoded_jwt}'
+        return f"Bearer {encoded_jwt}"
 
     @classmethod
     def generate_refresh_token(cls) -> tuple[uuid.UUID, timedelta]:
@@ -58,9 +54,7 @@ class TokenManager:
 
         :return: Tuple of (UUID refresh token, timedelta expiration time)
         """
-        return uuid.uuid4(), timedelta(
-            days=REFRESH_TOKEN_EXPIRE_DAYS
-        )
+        return uuid.uuid4(), timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
 
     @classmethod
     def decode_access_token(cls, token: str) -> dict[str, str | int]:
@@ -89,7 +83,7 @@ class TokenManager:
         :param decoded: Dictionary containing a decoded token claims
         :raises: AccessTokenExpiredException if the token has expired
         """
-        jwt_exp_date: int = int(decoded.get('exp', 0))
+        jwt_exp_date: int = int(decoded.get("exp", 0))
         current_time: int = timegm(datetime.now(UTC).utctimetuple())
         if not jwt_exp_date or current_time >= jwt_exp_date:
             raise AccessTokenExpiredException
@@ -106,9 +100,8 @@ class TokenManager:
         :raises: RefreshTokenException if the token has not expired
         """
         current_date = datetime.now(UTC)  # aware
-        refresh_token_expire_date = (
-                refresh_token_model.created_at.replace(tzinfo=UTC)
-                + timedelta(seconds=refresh_token_model.expires_in)
-        )
+        refresh_token_expire_date = refresh_token_model.created_at.replace(
+            tzinfo=UTC
+        ) + timedelta(seconds=refresh_token_model.expires_in)
         if current_date >= refresh_token_expire_date:
             raise RefreshTokenException

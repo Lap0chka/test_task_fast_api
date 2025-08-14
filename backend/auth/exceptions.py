@@ -8,7 +8,7 @@ class WrongCredentialsException(HTTPException):
         """Initialize the WrongCredentialsException with status 404."""
         super().__init__(
             status_code=404,
-            detail='User with this credentials can not be found',
+            detail="User with this credentials can not be found",
         )
 
 
@@ -17,7 +17,7 @@ class AccessTokenExpiredException(HTTPException):
 
     def __init__(self) -> None:
         """Initialize the AccessTokenExpiredException with status 404."""
-        super().__init__(status_code=404, detail='Access token expired')
+        super().__init__(status_code=404, detail="Access token expired")
 
 
 class RefreshTokenException(HTTPException):
@@ -27,10 +27,10 @@ class RefreshTokenException(HTTPException):
         """Initialize the RefreshTokenException with status 404."""
         super().__init__(
             status_code=404,
-            detail='Cannot process refresh '
-            'token. Probably token '
+            detail="Cannot process refresh "
+            "token. Probably token "
             "expired, doesn't exist or"
-            ' attached to deleted user.',
+            " attached to deleted user.",
         )
 
 
@@ -41,5 +41,5 @@ class UserNotFoundByIdException(HTTPException):
         """Initialize the UserNotFoundByIdException with status 404."""
         super().__init__(
             status_code=404,
-            detail='Active user by this id not found.',
+            detail="Active user by this id not found.",
         )

@@ -5,7 +5,11 @@ from base.abstract import AbstractRepository
 from base.services import BaseService
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from .exceptions import RefreshTokenException, WrongCredentialsException, UserNotFoundByIdException
+from .exceptions import (
+    RefreshTokenException,
+    UserNotFoundByIdException,
+    WrongCredentialsException,
+)
 from .models import RefreshTokenModel, UserModel
 from .repository import AuthRepository, UserRepository
 from .schemas import CreateRefreshTokenSchema, CreateUserRequestSchema, Token
@@ -16,7 +20,7 @@ from .token import TokenManager
 class UserService(BaseService):
     """Service for user."""
 
-    def __init__(self, db_session: AsyncSession, repo: AbstractRepository=None):
+    def __init__(self, db_session: AsyncSession, repo: AbstractRepository = None):
         super().__init__(db_session)
         self.repo = repo or UserRepository()
 
@@ -25,7 +29,7 @@ class UserService(BaseService):
         users_dict["password"] = Hasher.hash_password(users_dict["password"])
         return await self.repo.create_one(users_dict)
 
-    async def get_user_by_id(self, user_id: int ) -> UserModel:
+    async def get_user_by_id(self, user_id: int) -> UserModel:
         """Retrieve a user by their ID from the database."""
         async with self.session.begin():
             user: UserModel | None = await self.repo.get_one(id=user_id)
@@ -46,14 +50,12 @@ class AuthService(BaseService):
 
     @staticmethod
     def _verify_user_password(user: UserModel | None, password: str) -> None:
-        """Verify that the given password matches the user's password.
-        """
+        """Verify that the given password matches the user's password."""
         if not user or not Hasher.verify_password(password, user.password):
             raise WrongCredentialsException
 
     async def auth_user(self, username: str, password: str) -> UserModel:
-        """Authenticate a user by email and password.
-        """
+        """Authenticate a user by email and password."""
         user: UserModel | None = await self.user_repo.get_one(
             username=username, is_active=True
         )
@@ -62,16 +64,13 @@ class AuthService(BaseService):
 
     @staticmethod
     def _get_user_id_from_jwt(decoded_jwt: dict[str, str | int]) -> str:
-        """Extract and return user ID from a decoded JWT payload.
-        """
-        user_id: int | str | None = decoded_jwt.get('sub')
+        """Extract and return user ID from a decoded JWT payload."""
+        user_id: int | str | None = decoded_jwt.get("sub")
         if not user_id or isinstance(user_id, int):
             raise WrongCredentialsException
         return user_id
 
-    async def validate_token_for_user(
-            self, user_jwt_token: str
-    ) -> int:
+    async def validate_token_for_user(self, user_jwt_token: str) -> int:
         """Validate a JWT token and retrieve the associated user.
 
         This method decodes the provided JWT token, validates its expiration,
@@ -118,9 +117,7 @@ class AuthService(BaseService):
          if it exists and hasn't expired,
         then generates new access and refresh tokens for the user.
         """
-        refresh_token_model: (
-                RefreshTokenModel | None
-        ) = await self.repo.get_one(
+        refresh_token_model: RefreshTokenModel | None = await self.repo.get_one(
             refresh_token=refresh_token,
         )
         if not refresh_token_model:
@@ -137,15 +134,11 @@ class AuthService(BaseService):
         access_token: str = TokenManager.generate_access_token(
             user_id=user_id,
         )
-        updated_refresh_token, tm_delta = (
-            TokenManager.generate_refresh_token()
-        )
-        updated_refresh_token_model: (
-                RefreshTokenModel | None
-        ) = await self.repo.update(
+        updated_refresh_token, tm_delta = TokenManager.generate_refresh_token()
+        updated_refresh_token_model: RefreshTokenModel | None = await self.repo.update(
             {
-                'refresh_token': updated_refresh_token,
-                'expires_in': tm_delta.total_seconds(),
+                "refresh_token": updated_refresh_token,
+                "expires_in": tm_delta.total_seconds(),
             },
             id=refresh_token_model.id,
         )
@@ -157,16 +150,13 @@ class AuthService(BaseService):
         )
 
     async def logout_user(
-            self,
-            refresh_token: str | None,
+        self,
+        refresh_token: str | None,
     ) -> None:
-        """Log out a user by invalidating their refresh token.
-        """
+        """Log out a user by invalidating their refresh token."""
         if not refresh_token:
             raise RefreshTokenException
-        refresh_token_model: (
-                RefreshTokenModel | None
-        ) = await self.repo.get_one(
+        refresh_token_model: RefreshTokenModel | None = await self.repo.get_one(
             refresh_token=refresh_token,
         )
         if not refresh_token_model:

@@ -7,10 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class UserModel(BaseTimeStampModel):
-    """SQLAlchemy model representing a user in the system.
-    """
+    """SQLAlchemy model representing a user in the system."""
 
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(
         String(32),
@@ -27,12 +26,10 @@ class UserModel(BaseTimeStampModel):
     )
 
 
-
 class RefreshTokenModel(BaseTimeStampModel):
-    """SQLAlchemy model representing a refresh token session.
-    """
+    """SQLAlchemy model representing a refresh token session."""
 
-    __tablename__ = 'refresh_tokens'
+    __tablename__ = "refresh_tokens"
 
     refresh_token: Mapped[uuid.UUID] = mapped_column(UUID, index=True)
     expires_in: Mapped[float]

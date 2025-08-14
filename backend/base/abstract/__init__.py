@@ -1,2 +1,2 @@
-from base.abstract.repository import AbstractRepository
 from base.abstract.permissions import AbstractPermissionService
+from base.abstract.repository import AbstractRepository

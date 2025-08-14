@@ -19,8 +19,8 @@ MAX_AGE_ACCESS_TOKEN = ACCESS_TOKEN_EXPIRE_MINUTES * 60
 MAX_AGE_REFRESH_TOKEN = REFRESH_TOKEN_EXPIRE_DAYS * 30 * 24 * 60
 
 # Api Version
-API_VERSION = 'v1'
-API_URL = f'/api/{API_VERSION}'
+API_VERSION = "v1"
+API_URL = f"/api/{API_VERSION}"
 
 # Postgres config
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
@@ -29,9 +29,14 @@ POSTGRES_DB = os.getenv("POSTGRES_DB", "books_db")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 
-ASYNC_DATABASE_URL = (
-    f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+ASYNC_DATABASE_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
+
+ALLOWED_GENRES = (
+    "Fiction",
+    "Non-Fiction",
+    "Science",
+    "Fantasy",
+    "History",
+    "Biography",
 )
-
-
-ALLOWED_GENRES = ("Fiction", "Non-Fiction", "Science", "Fantasy", "History", "Biography")

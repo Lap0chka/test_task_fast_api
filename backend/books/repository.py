@@ -1,5 +1,6 @@
 from base.repository import SQLAlchemyRepository
-from .models import BookModel, AuthorModel
+
+from .models import AuthorModel, BookModel
 
 
 class BookRepository(SQLAlchemyRepository):
@@ -8,5 +9,3 @@ class BookRepository(SQLAlchemyRepository):
 
 class AuthorRepository(SQLAlchemyRepository):
     model = AuthorModel
-
-

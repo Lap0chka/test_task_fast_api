@@ -1,21 +1,16 @@
 import datetime as dt
-from typing import Any, TypeVar, cast, Sequence
-
-from sqlalchemy import (
-    Result,
-    Select,
-    and_,
-    or_,
-    select,
-)
-from sqlalchemy import delete as sa_delete
-from sqlalchemy import update as sa_update
-from sqlalchemy.sql.expression import insert
+from typing import Any, Sequence, TypeVar, cast
 
 from base.abstract.repository import AbstractRepository
 from core.db import Base, new_session
+from sqlalchemy import Result, Select, and_
+from sqlalchemy import delete as sa_delete
+from sqlalchemy import or_, select
+from sqlalchemy import update as sa_update
+from sqlalchemy.sql.expression import insert
 
-Model = TypeVar('Model', bound=Base)
+Model = TypeVar("Model", bound=Base)
+
 
 class SQLAlchemyRepository(AbstractRepository):
     model = None
@@ -28,13 +23,13 @@ class SQLAlchemyRepository(AbstractRepository):
             return res.scalar_one()
 
     async def get_all(
-            self,
-            created_at: dt.datetime | None = None,
-            last_id: int | None = None,
-            limit: int | None = None,
-            order_by: list[str] | None = None,
-            *filters: Any,
-            **filters_by: Any,
+        self,
+        created_at: dt.datetime | None = None,
+        last_id: int | None = None,
+        limit: int | None = None,
+        order_by: list[str] | None = None,
+        *filters: Any,
+        **filters_by: Any,
     ) -> list[Model] | None:
         async with new_session() as session:
             pagination = []
@@ -49,9 +44,7 @@ class SQLAlchemyRepository(AbstractRepository):
                     )
                 ]
             query: Select[Any] = (
-                select(self.model)
-                .where(*filters, *pagination)
-                .filter_by(**filters_by)
+                select(self.model).where(*filters, *pagination).filter_by(**filters_by)
             )
             if limit:
                 query = query.limit(limit)
@@ -59,8 +52,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return cast(list[Model], result.scalars().all())
 
     async def _get(self, *filters: Any, **filters_by: Any) -> Result[Any]:
-        """Execute a database query with the specified filters.
-        """
+        """Execute a database query with the specified filters."""
         async with new_session() as session:
             query: Select[Any] = (
                 select(self.model).where(*filters).filter_by(**filters_by)
@@ -68,8 +60,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return await session.execute(query)
 
     async def get_one(self, *filters: Any, **filters_by: Any) -> Model | None:
-        """Retrieve a single record matching the specified filters.
-        """
+        """Retrieve a single record matching the specified filters."""
         result: Result[Any] = await self._get(*filters, **filters_by)
         return result.scalar_one_or_none()
 
@@ -79,8 +70,7 @@ class SQLAlchemyRepository(AbstractRepository):
         *filters: Any,
         **filters_by: Any,
     ) -> Model | None:
-        """Update records matching the specified filters with provided data.
-        """
+        """Update records matching the specified filters with provided data."""
         async with new_session() as session:
             cols = {c.key for c in self.model.__mapper__.column_attrs}
             payload = {k: v for k, v in update_data.items() if k in cols}
@@ -103,18 +93,16 @@ class SQLAlchemyRepository(AbstractRepository):
             return await session.get(self.model, obj_id)
 
     async def delete(
-            self,
-            *filters: Any,
-            **filters_by: Any,
+        self,
+        *filters: Any,
+        **filters_by: Any,
     ) -> None:
-        """Delete records matching the specified filters.
-        """
+        """Delete records matching the specified filters."""
         async with new_session() as session:
             stmt = sa_delete(self.model).where(*filters).filter_by(**filters_by)
             res = await session.execute(stmt)
 
             return res.rowcount or 0
-
 
     async def get_ids_by_lst(self, lst: list[str]) -> list[model]:
         async with new_session() as session:
@@ -124,10 +112,10 @@ class SQLAlchemyRepository(AbstractRepository):
             return list(res.scalars())
 
     async def add_many_to_many(
-            self,
-            obj: Model,
-            rel_attr: str,
-            items: Sequence[Model],
+        self,
+        obj: Model,
+        rel_attr: str,
+        items: Sequence[Model],
     ):
         async with new_session() as session:
             obj = await session.merge(obj)
@@ -142,5 +130,3 @@ class SQLAlchemyRepository(AbstractRepository):
             await session.commit()
             await session.refresh(obj)
             return obj
-
-

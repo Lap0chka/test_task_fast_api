@@ -1,7 +1,7 @@
 import logging
 
 from auth.router import auth_router
-from books.routers import book_router, author_router
+from books.routers import author_router, book_router
 from core.db import lifespan
 from fastapi import FastAPI
 

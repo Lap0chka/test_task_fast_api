@@ -1,9 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
 
-from starlette.requests import Request
-
 from auth.models import UserModel
+from starlette.requests import Request
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +13,7 @@ class AbstractPermissionService(ABC):
     """
     Abstract base class for implementing permission validation.
     """
+
     def __init__(
         self,
         user: UserModel,

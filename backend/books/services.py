@@ -1,14 +1,13 @@
 import datetime as dt
 from typing import List
 
-from sqlalchemy.ext.asyncio.session import AsyncSession
-
 from base.abstract import AbstractRepository
 from base.services import BaseService
 from books.exceptions import AuthorNotExistException, BookNotFoundByIdException
-from books.models import BookModel, AuthorModel
-from books.repository import BookRepository, AuthorRepository
-from books.schemas import BookBase, AuthorSchema
+from books.models import AuthorModel, BookModel
+from books.repository import AuthorRepository, BookRepository
+from books.schemas import AuthorSchema, BookBase
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
 class BookService(BaseService):
@@ -19,9 +18,7 @@ class BookService(BaseService):
         self.repo = repo or BookRepository()
         self.author_repo = AuthorRepository()
 
-    async def create_book(
-            self, book_schema: BookBase
-    ) -> BookModel:
+    async def create_book(self, book_schema: BookBase) -> BookModel:
         """Create a new book in the database."""
         book_data = book_schema.model_dump()
         authors: list[AuthorModel] = await self.fetch_author(book_data["author_names"])
@@ -31,10 +28,10 @@ class BookService(BaseService):
         return book
 
     async def get_all_books(
-            self,
-            created_at: dt.datetime | None = None,
-            last_id: int | None = None,
-            limit: int | None = None,
+        self,
+        created_at: dt.datetime | None = None,
+        last_id: int | None = None,
+        limit: int | None = None,
     ) -> list[BookModel]:
         """
         Retrieve a list of all active book from the database.
@@ -53,12 +50,14 @@ class BookService(BaseService):
             raise AuthorNotExistException()
         return authors
 
-    async def search_books(self, query: str, limit: int, offset: int) -> List[BookModel]:
+    async def search_books(
+        self, query: str, limit: int, offset: int
+    ) -> List[BookModel]:
         return await self.repo.get_all(query=query, limit=limit, offset=offset)
 
     async def get_book(
-            self,
-            book_id: int,
+        self,
+        book_id: int,
     ) -> BookModel:
         """
         Retrieve a book by its ID from the database.
@@ -71,9 +70,9 @@ class BookService(BaseService):
         return book
 
     async def update_book(
-            self,
-            book_id: int,
-            book_fields: BookBase,
+        self,
+        book_id: int,
+        book_fields: BookBase,
     ) -> BookModel:
         """
         Update an existing book by ID and author with the provided fields.
@@ -83,15 +82,16 @@ class BookService(BaseService):
         )
         print(filtered_books_fields)
         updated_book: BookModel | None = await self.repo.update(
-            filtered_books_fields, id=book_id,
+            filtered_books_fields,
+            id=book_id,
         )
         if not updated_book:
             raise BookNotFoundByIdException
         return updated_book
 
     async def delete_book(
-            self,
-            book_id: int,
+        self,
+        book_id: int,
     ) -> None:
         """
         Delete a book in the database.
@@ -103,7 +103,6 @@ class BookService(BaseService):
             raise BookNotFoundByIdException
 
 
-
 class AuthorService(BaseService):
     """Service class for handling book-related business logic."""
 
@@ -111,9 +110,7 @@ class AuthorService(BaseService):
         super().__init__(db_session)
         self.repo = AuthorRepository()
 
-    async def create_author(
-            self, author_schema: AuthorSchema
-    ) -> AuthorModel:
+    async def create_author(self, author_schema: AuthorSchema) -> AuthorModel:
         """Create a new book in the database."""
         author_data = author_schema.model_dump()
         author: AuthorModel = await self.repo.create_one(author_data)

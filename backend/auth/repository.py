@@ -1,6 +1,5 @@
-from base.repository import SQLAlchemyRepository
-
 from auth.models import RefreshTokenModel, UserModel
+from base.repository import SQLAlchemyRepository
 
 
 class UserRepository(SQLAlchemyRepository):
@@ -9,4 +8,3 @@ class UserRepository(SQLAlchemyRepository):
 
 class AuthRepository(SQLAlchemyRepository):
     model = RefreshTokenModel
-
