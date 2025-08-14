@@ -25,6 +25,7 @@ class UserService(BaseService):
         self.repo = repo or UserRepository()
 
     async def create_new_user(self, user: CreateUserRequestSchema) -> int:
+        """Retrieve a user by their ID from the database."""
         users_dict = user.model_dump()
         users_dict["password"] = Hasher.hash_password(users_dict["password"])
         return await self.repo.create_one(users_dict)
