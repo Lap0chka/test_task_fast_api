@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from auth.models import UserModel
-from auth.services import AuthService, UserService
 from base.abstract import AbstractPermissionService
 from base.dependencies import get_service
 from fastapi.params import Depends, Security
 from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
+
+from auth.models import UserModel
+from auth.services import AuthService, UserService
 
 oauth_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
     tokenUrl="/auth/login",
@@ -31,8 +32,7 @@ async def get_user_from_jwt(
 
 
 class PermissionDependency:
-    """
-    Permission dependency for permission validation to FastAPI routes.
+    """Permission dependency for permission validation to FastAPI routes.
     """
 
     def __init__(self, permissions: list[type[AbstractPermissionService]]):

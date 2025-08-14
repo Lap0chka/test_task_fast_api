@@ -4,8 +4,7 @@ from fastapi import HTTPException, status
 
 class Is_Authenticated(AbstractPermissionService):
     async def validate_permission(self):
-        """
-        Is authenticated class and method validate_permission
+        """Is authenticated class and method validate_permission
         """
         if not self.user:
             raise HTTPException(

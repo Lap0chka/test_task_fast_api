@@ -1,6 +1,4 @@
-from typing import final
 
-from books.exceptions import ForgottenParametersException
 from pydantic import BaseModel, ConfigDict
 
 

@@ -2,12 +2,6 @@ import uuid
 from calendar import timegm
 from datetime import UTC, datetime, timedelta
 
-from auth.exceptions import (
-    AccessTokenExpiredException,
-    RefreshTokenException,
-    WrongCredentialsException,
-)
-from auth.models import RefreshTokenModel
 from core.settings import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     ALGORITHM,
@@ -16,18 +10,19 @@ from core.settings import (
 )
 from jose import JWTError, jwt
 
+from auth.exceptions import (
+    AccessTokenExpiredException,
+    RefreshTokenException,
+    WrongCredentialsException,
+)
+from auth.models import RefreshTokenModel
+
 type access_token = dict[str, str | datetime]
 
 
 class TokenManager:
-    """A class responsible for managing JWT access tokens and refresh tokens.
-
-    This class provides functionality to:
-    - Generate and decode JWT access tokens
-    - Generate refresh tokens with expiration times
-    - Validate token expiration for both access and refresh tokens
-
-    All methods are implemented as class methods for stateless operation.
+    """
+    A class responsible for managing JWT access tokens and refresh tokens.
     """
 
     @classmethod
@@ -50,18 +45,15 @@ class TokenManager:
 
     @classmethod
     def generate_refresh_token(cls) -> tuple[uuid.UUID, timedelta]:
-        """Generate a new refresh token and its expiration time.
-
-        :return: Tuple of (UUID refresh token, timedelta expiration time)
+        """
+        Generate a new refresh token and its expiration time.
         """
         return uuid.uuid4(), timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
 
     @classmethod
     def decode_access_token(cls, token: str) -> dict[str, str | int]:
-        """Decode and verify a JWT token.
-
-        :param token: JWT token string to decode
-        :return: Dictionary containing decoded token claims
+        """
+        Decode and verify a JWT token.
         """
         try:
             decoded_jwt: dict[str, str | int] = jwt.decode(
@@ -78,10 +70,8 @@ class TokenManager:
         cls,
         decoded: dict[str, str | int],
     ) -> None:
-        """Check if the access token has expired.
-
-        :param decoded: Dictionary containing a decoded token claims
-        :raises: AccessTokenExpiredException if the token has expired
+        """
+        Check if the access token has expired.
         """
         jwt_exp_date: int = int(decoded.get("exp", 0))
         current_time: int = timegm(datetime.now(UTC).utctimetuple())
@@ -93,11 +83,8 @@ class TokenManager:
         cls,
         refresh_token_model: RefreshTokenModel,
     ) -> None:
-        """Check if the refresh token has expired.
-
-        :param refresh_token_model: RefreshSessionModel instance
-        containing token details
-        :raises: RefreshTokenException if the token has not expired
+        """
+        Check if the refresh token has expired.
         """
         current_date = datetime.now(UTC)  # aware
         refresh_token_expire_date = refresh_token_model.created_at.replace(

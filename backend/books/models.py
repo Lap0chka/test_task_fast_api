@@ -1,20 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import List
-
 from base.models import BaseTimeStampModel
 from core.db import Base
 from sqlalchemy import (
-    BigInteger,
     Column,
-    DateTime,
     ForeignKey,
     Integer,
     String,
     Table,
     UniqueConstraint,
-    func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -34,7 +28,7 @@ class AuthorModel(BaseTimeStampModel):
         String(255), nullable=False, unique=True, index=True
     )
 
-    books: Mapped[List["BookModel"]] = relationship(
+    books: Mapped[list[BookModel]] = relationship(
         back_populates="authors",
         secondary=book_authors,
         lazy="selectin",
@@ -51,7 +45,7 @@ class BookModel(BaseTimeStampModel):
         ARRAY(String(50)), nullable=False, server_default="{}"
     )
 
-    authors: Mapped[List["AuthorModel"]] = relationship(
+    authors: Mapped[list[AuthorModel]] = relationship(
         back_populates="books",
         secondary=book_authors,
         lazy="selectin",

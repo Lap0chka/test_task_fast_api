@@ -1,14 +1,15 @@
 import uuid
 from typing import Annotated
 
-from auth.exceptions import RefreshTokenException
-from auth.models import UserModel
-from auth.schemas import CreateUserRequestSchema, Token, UserResponseSchema
-from auth.services import AuthService, UserService
 from base.dependencies import get_service
 from core.settings import API_URL, MAX_AGE_ACCESS_TOKEN, MAX_AGE_REFRESH_TOKEN
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
+
+from auth.exceptions import RefreshTokenException
+from auth.models import UserModel
+from auth.schemas import CreateUserRequestSchema, Token, UserResponseSchema
+from auth.services import AuthService, UserService
 
 auth_router = APIRouter(prefix=f"{API_URL}/auth", tags=["auth"])
 

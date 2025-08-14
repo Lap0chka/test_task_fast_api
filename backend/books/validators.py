@@ -1,23 +1,12 @@
 import logging
 from datetime import datetime
-from typing import Union, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def clean_empty_values(value: Union[str, List]) -> Union[str, List]:
-    """
-    Validate and clean empty string or list values.
-
-    Args:
-        value (Union[str, List]): The value to check.
-
-    Returns:
-        Union[str, List]: The cleaned value.
-
-    Raises:
-        ValueError: If the value is empty or unsupported type.
+def clean_empty_values(value: str | list) -> str | list:
+    """Validate and clean empty string or list values.
     """
     if isinstance(value, list):
         if not value:
@@ -35,11 +24,8 @@ def clean_empty_values(value: Union[str, List]) -> Union[str, List]:
         return v
 
 
-
-
-def clean_date(value: Union[str, int, None]) -> int:
-    """
-    Validate and clean a published year value.
+def clean_date(value: str | int | None) -> int:
+    """Validate and clean a published year value.
     """
     current_year = datetime.now().year
     min_year = 1800

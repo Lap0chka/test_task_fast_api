@@ -1,13 +1,13 @@
 import datetime as dt
-from typing import List
 
 from base.abstract import AbstractRepository
 from base.services import BaseService
+from sqlalchemy.ext.asyncio.session import AsyncSession
+
 from books.exceptions import AuthorNotExistException, BookNotFoundByIdException
 from books.models import AuthorModel, BookModel
 from books.repository import AuthorRepository, BookRepository
 from books.schemas import AuthorSchema, BookBase
-from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
 class BookService(BaseService):
@@ -33,8 +33,7 @@ class BookService(BaseService):
         last_id: int | None = None,
         limit: int | None = None,
     ) -> list[BookModel]:
-        """
-        Retrieve a list of all active book from the database.
+        """Retrieve a list of all active book from the database.
         """
         async with self.session.begin():
             books: list[BookModel] | None = await self.repo.get_all(
@@ -53,17 +52,15 @@ class BookService(BaseService):
 
     async def search_books(
         self, query: str, limit: int, offset: int
-    ) -> List[BookModel]:
+    ) -> list[BookModel]:
         """Search for books matching the query."""
-
         return await self.repo.get_all(query=query, limit=limit, offset=offset)
 
     async def get_book(
         self,
         book_id: int,
     ) -> BookModel:
-        """
-        Retrieve a book by its ID from the database.
+        """Retrieve a book by its ID from the database.
         """
         book: BookModel | None = await self.repo.get_one(
             id=book_id,
@@ -77,8 +74,7 @@ class BookService(BaseService):
         book_id: int,
         book_fields: BookBase,
     ) -> BookModel:
-        """
-        Update an existing book by ID and author with the provided fields.
+        """Update an existing book by ID and author with the provided fields.
         """
         filtered_books_fields: dict[str, str] = (
             self._validate_schema_for_update_request(book_fields)
@@ -96,8 +92,7 @@ class BookService(BaseService):
         self,
         book_id: int,
     ) -> None:
-        """
-        Delete a book in the database.
+        """Delete a book in the database.
         """
         deleted_book: BookModel | None = await self.repo.delete(
             id=book_id,

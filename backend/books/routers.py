@@ -1,15 +1,16 @@
 import datetime as dt
-from typing import Annotated, List
+from typing import Annotated
 
 from auth.dependencies import PermissionDependency
 from base.dependencies import get_service
 from base.schema import DeleteResponse
+from core.settings import API_URL
+from fastapi import APIRouter, Depends, Query, status
+
 from books.models import BookModel
 from books.permissions import Is_Authenticated
 from books.schemas import AuthorSchema, BookBase, BookOutSchema
 from books.services import AuthorService, BookService
-from core.settings import API_URL
-from fastapi import APIRouter, Depends, Query, status
 
 book_router = APIRouter(
     prefix=f"{API_URL}/books",
@@ -31,8 +32,7 @@ async def get_all_books(
     last_id: int | None = None,
     limit: int | None = None,
 ) -> list[BookOutSchema] | None:
-    """
-    Retrieve a list of all available book with optional filtering.
+    """Retrieve a list of all available book with optional filtering.
     """
     books: list[BookModel] = await service.get_all_books(created_at, last_id, limit)
     return [BookOutSchema.model_validate(c) for c in books]
@@ -61,15 +61,14 @@ async def get_book(
     return BookOutSchema.model_validate(book)
 
 
-@book_router.get("/search", response_model=List[BookOutSchema])
+@book_router.get("/search", response_model=list[BookOutSchema])
 async def search_books(
     query: str = Query(..., min_length=1, description="Title or author to search"),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     service: Annotated[BookService, Depends(get_service(BookService))] = None,
 ) -> list[BookOutSchema]:
-    """
-    Case-insensitive + fuzzy search by title or author.
+    """Case-insensitive + fuzzy search by title or author.
     Example: query='Harry Potter' → finds 'Harry Potter and the Sorcerer’s Stone'.
     """
     results = await service.search_books(query=query, limit=limit, offset=offset)
@@ -82,8 +81,7 @@ async def update_book(
     book_fields: BookBase,
     service: Annotated[BookService, Depends(get_service(BookService))],
 ) -> BookOutSchema:
-    """
-    Update an existing book by its ID.
+    """Update an existing book by its ID.
     """
     updated_books = await service.update_book(book_id=book_id, book_fields=book_fields)
     return BookOutSchema.model_validate(updated_books)

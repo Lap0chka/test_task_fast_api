@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 # Abstract base class for all permission services.
 # Enforces a contract for permission validation logic.
 class AbstractPermissionService(ABC):
-    """
-    Abstract base class for implementing permission validation.
+    """Abstract base class for implementing permission validation.
     """
 
     def __init__(
@@ -19,8 +18,7 @@ class AbstractPermissionService(ABC):
         user: UserModel,
         request: Request,
     ):
-        """
-        Initialize BasePermissionService with user and request.
+        """Initialize BasePermissionService with user and request.
         """
         # The current authenticated user
         self.user: UserModel = user

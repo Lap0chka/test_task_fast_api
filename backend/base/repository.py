@@ -1,13 +1,14 @@
 import datetime as dt
-from typing import Any, Sequence, TypeVar, cast
+from collections.abc import Sequence
+from typing import Any, TypeVar, cast
 
-from base.abstract.repository import AbstractRepository
 from core.db import Base, new_session
-from sqlalchemy import Result, Select, and_
+from sqlalchemy import Result, Select, and_, or_, select
 from sqlalchemy import delete as sa_delete
-from sqlalchemy import or_, select
 from sqlalchemy import update as sa_update
 from sqlalchemy.sql.expression import insert
+
+from base.abstract.repository import AbstractRepository
 
 Model = TypeVar("Model", bound=Base)
 
@@ -110,7 +111,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def get_ids_by_lst(self, lst: list[str]) -> list[model]:
         """"
-            Get ids by lst
+        Get ids by lst
         """
         async with new_session() as session:
             res = await session.execute(
@@ -124,8 +125,7 @@ class SQLAlchemyRepository(AbstractRepository):
         rel_attr: str,
         items: Sequence[Model],
     ):
-        """
-        Add many to many field to object
+        """Add many to many field to object
         """
         async with new_session() as session:
             obj = await session.merge(obj)

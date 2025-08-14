@@ -2,11 +2,12 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from core.settings import ASYNC_DATABASE_URL, DEBUG
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import declarative_base
+
+from core.settings import ASYNC_DATABASE_URL, DEBUG
 
 logger = logging.getLogger(__name__)
 

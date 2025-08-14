@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Literal
+from typing import Literal
 
 from base.schema import BaseSchema
-from books.validators import clean_date, clean_empty_values
 from core.settings import ALLOWED_GENRES
 from pydantic import Field, field_serializer, field_validator
+
+from books.validators import clean_date, clean_empty_values
 
 
 class BookBase(BaseSchema):

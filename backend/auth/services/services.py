@@ -5,14 +5,14 @@ from base.abstract import AbstractRepository
 from base.services import BaseService
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from .exceptions import (
+from auth.exceptions import (
     RefreshTokenException,
     UserNotFoundByIdException,
     WrongCredentialsException,
 )
-from .models import RefreshTokenModel, UserModel
-from .repository import AuthRepository, UserRepository
-from .schemas import CreateRefreshTokenSchema, CreateUserRequestSchema, Token
+from auth.models import RefreshTokenModel, UserModel
+from auth.repository import AuthRepository, UserRepository
+from auth.schemas import CreateRefreshTokenSchema, CreateUserRequestSchema, Token
 from .secure import Hasher
 from .token import TokenManager
 
@@ -126,7 +126,7 @@ class AuthService(BaseService):
         TokenManager.validate_refresh_token_expired(
             refresh_token_model=refresh_token_model,
         )
-        user_id: uuid.UUID = refresh_token_model.user_id
+        user_id: int = refresh_token_model.user_id
         user: UserModel | None = await self.repo.get_one(
             id=user_id,
         )
