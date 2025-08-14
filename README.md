@@ -110,21 +110,24 @@ Endpoints:
 ## 📌 API Endpoints
 
 ### Books
-| Method | URL | Description |
-|--------|-----|-------------|
-| **POST** | `/api/v1/books` | Add a new book *(authenticated only)* |
-| **GET** | `/api/v1/books` | Get all books with pagination, sorting, filtering |
-| **GET** | `/api/v1/books/{book_id}` | Get a book by ID |
-| **PUT** | `/api/v1/books/{book_id}` | Update a book *(authenticated only)* |
-| **DELETE** | `/api/v1/books/{book_id}` | Delete a book *(authenticated only)* |
-| **POST** | `/api/v1/books/bulk-upload` | Upload books from JSON *(authenticated only)* |
-| **GET** | `/api/v1/books/search?query=...` | Search by title or author (fuzzy search) |
+| Method | URL                              | Description                                       |
+|--------|----------------------------------|---------------------------------------------------|
+| **POST** | `/api/v1/books`                  | Add a new book *(authenticated only)*             |
+| **POST** | `/api/v1/author`                 | Add a new author *(authenticated only)*           |
+| **GET** | `/api/v1/books`                  | Get all books with pagination, sorting, filtering |
+| **GET** | `/api/v1/books/{book_id}`        | Get a book by ID                                  |
+| **PUT** | `/api/v1/books/{book_id}`        | Update a book *(authenticated only)*              |
+| **DELETE** | `/api/v1/books/{book_id}`        | Delete a book *(authenticated only)*              |
+| **POST** | `/api/v1/books/bulk-upload`      | Upload books from JSON *(authenticated only)*     |
+| **GET** | `/api/v1/books/search?query=...` | Search by title or author (fuzzy search)          |
 
 ### Auth
-| Method | URL | Description |
-|--------|-----|-------------|
-| **POST** | `/auth/register` | User registration |
-| **POST** | `/auth/login` | User login (get JWT) |
+| Method | URL              | Description          |
+|--------|------------------|----------------------|
+| **POST** | `/auth/register` | User registration    |
+| **POST** | `/auth/login`    | User login (get JWT) |
+| **POST** | `/auth/logout`   | User kogout (get JWT) |
+| **POST** | `/auth/refres`   | Refresh JWT          |
 
 ---
 
@@ -160,12 +163,126 @@ class CanReadBooks(AbstractPermissionService):
 
 ---
 
-## 🧪 Testing
-```bash
-pytest
-```
 
 ---
 
 ## 📜 License
 MIT License
+
+
+📚 Books API
+
+FastAPI application for a book catalog with:
+	•	Search by title and authors (case-insensitive, fuzzy search)
+	•	CRUD for books and authors (many-to-many relationship)
+	•	Bulk book upload from JSON
+	•	PostgreSQL + SQLAlchemy (async)
+	•	Docker / docker-compose support
+
+⸻
+
+🚀 Quick Start
+
+1) Clone and set up environment
+
+git clone <repo-url>
+cd <repo-folder>
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+2) Create .env file
+
+DEBUG=False
+SECRET_KEY_JWT=my-secret-key
+ALGORITHM_JWT=HS256
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=books_db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+
+⸻
+
+🐳 Run with Docker
+
+Option A: docker-compose (recommended for local dev)
+
+docker-compose up -d --build
+
+Option B: plain Docker
+
+docker build -t books-api .
+docker run --env-file .env -p 8000:8000 books-api
+
+
+⸻
+
+🧪 Run locally without Docker
+
+uvicorn app.main:app --reload
+
+	•	Swagger UI: http://localhost:8000/docs
+	•	ReDoc: http://localhost:8000/redoc
+
+⸻
+
+🗄️ Database & Migrations
+
+Using Alembic:
+
+alembic revision -m "init tables"
+alembic upgrade head
+
+For fuzzy search:
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
+
+⸻
+
+🔌 API Examples
+
+Create a book
+
+POST /api/v1/books/
+
+{
+  "title": "Good Omens",
+  "author_names": ["Neil Gaiman", "Terry Pratchett"],
+  "genres": ["Fiction"],
+  "published_year": 1990
+}
+
+Search books
+
+GET /api/v1/books/search?query=Harry%20Potter&limit=10&offset=0
+
+Bulk upload
+
+POST /api/v1/books/bulk-upload with JSON file:
+
+[
+  {"title": "Harry Potter", "authors": ["J.K. Rowling"], "published_year": 1997},
+  {"title": "Good Omens", "authors": ["Neil Gaiman", "Terry Pratchett"], "published_year": 1990}
+]
+
+
+⸻
+
+🧹 pre-commit Hooks
+
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+
+
+⸻
+
+
+📄 License
+
+Specify your license here.
