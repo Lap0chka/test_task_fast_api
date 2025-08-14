@@ -1,25 +1,35 @@
 from __future__ import annotations
 
-from base.models import BaseTimeStampModel
-from core.db import Base
+from typing import List
+
 from sqlalchemy import (
-    Column,
     ForeignKey,
     Integer,
     String,
-    Table,
     UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-book_authors = Table(
-    "book_authors",
-    Base.metadata,
-    Column("book_id", ForeignKey("books.id", ondelete="CASCADE"), primary_key=True),
-    Column("author_id", ForeignKey("authors.id", ondelete="CASCADE"), primary_key=True),
-    UniqueConstraint("book_id", "author_id", name="uq_book_author"),
-)
+from base.models import BaseTimeStampModel
+from core.db import Base
+
+
+class BookAuthor(Base):
+    """
+    Association object between books and authors.
+    """
+    __tablename__ = "book_authors"
+    __table_args__ = (UniqueConstraint("book_id", "author_id", name="uq_book_author"),)
+
+    book_id: Mapped[int] = mapped_column(ForeignKey("books.id", ondelete="CASCADE"),
+                                         primary_key=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"),
+                                           primary_key=True)
+
+    book: Mapped["BookModel"] = relationship(back_populates="book_authors")
+    author: Mapped["AuthorModel"] = relationship(back_populates="author_books")
+
 
 
 class AuthorModel(BaseTimeStampModel):
@@ -28,9 +38,9 @@ class AuthorModel(BaseTimeStampModel):
         String(255), nullable=False, unique=True, index=True
     )
 
-    books: Mapped[list[BookModel]] = relationship(
-        back_populates="authors",
-        secondary=book_authors,
+    books: Mapped[List[BookAuthor]] = relationship(
+        back_populates="book",
+        cascade="all, delete-orphan",
         lazy="selectin",
     )
 
@@ -45,8 +55,8 @@ class BookModel(BaseTimeStampModel):
         ARRAY(String(50)), nullable=False, server_default="{}"
     )
 
-    authors: Mapped[list[AuthorModel]] = relationship(
-        back_populates="books",
-        secondary=book_authors,
+    authors: Mapped[List[BookAuthor]] = relationship(
+        back_populates="author",
+        cascade="all, delete-orphan",
         lazy="selectin",
     )

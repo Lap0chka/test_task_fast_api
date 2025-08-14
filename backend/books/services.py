@@ -79,7 +79,7 @@ class BookService(BaseService):
         filtered_books_fields: dict[str, str] = (
             self._validate_schema_for_update_request(book_fields)
         )
-        print(filtered_books_fields)
+
         updated_book: BookModel | None = await self.repo.update(
             filtered_books_fields,
             id=book_id,
@@ -97,7 +97,7 @@ class BookService(BaseService):
         deleted_book: BookModel | None = await self.repo.delete(
             id=book_id,
         )
-        if deleted_book == 0:
+        if deleted_book:
             raise BookNotFoundByIdException
 
 
