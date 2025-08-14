@@ -5,7 +5,7 @@ from base.abstract import AbstractRepository
 from base.services import BaseService
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from .exceptions import RefreshTokenException, WrongCredentialsException
+from .exceptions import RefreshTokenException, WrongCredentialsException, UserNotFoundByIdException
 from .models import RefreshTokenModel, UserModel
 from .repository import AuthRepository, UserRepository
 from .schemas import CreateRefreshTokenSchema, CreateUserRequestSchema, Token
@@ -24,6 +24,14 @@ class UserService(BaseService):
         users_dict = user.model_dump()
         users_dict["password"] = Hasher.hash_password(users_dict["password"])
         return await self.repo.create_one(users_dict)
+
+    async def get_user_by_id(self, user_id: int ) -> UserModel:
+        """Retrieve a user by their ID from the database."""
+        async with self.session.begin():
+            user: UserModel | None = await self.repo.get_one(id=user_id)
+        if not user:
+            raise UserNotFoundByIdException
+        return user
 
 
 class AuthService(BaseService):

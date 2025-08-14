@@ -2,35 +2,35 @@ import uuid
 from typing import Annotated
 
 from base.dependencies import get_service
-from base.schema import IDResponseSchema
+
 from core.settings import (
     MAX_AGE_ACCESS_TOKEN,
-    MAX_AGE_REFRESH_TOKEN,
+    MAX_AGE_REFRESH_TOKEN, API_URL,
 )
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from auth.exceptions import RefreshTokenException
 from auth.models import UserModel
-from auth.schemas import CreateUserRequestSchema, Token
+from auth.schemas import CreateUserRequestSchema, Token, UserResponseSchema
 from auth.services import AuthService, UserService
 
-auth_router = APIRouter(prefix="/auth", tags=["auth"])
+auth_router = APIRouter(prefix=f"{API_URL}/auth", tags=["auth"])
 
 
 @auth_router.post(
     '/register',
     description='Create a new user',
-    response_model=IDResponseSchema,
+    response_model=UserResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
         user_schema: CreateUserRequestSchema,
         service: Annotated[UserService, Depends(get_service(UserService))],
-) -> IDResponseSchema:
+) -> UserResponseSchema:
     """Endpoint to create a new user."""
-    new_user_id = await service.create_new_user(user=user_schema)
-    return IDResponseSchema(id=new_user_id)
+    new_user = await service.create_new_user(user=user_schema)
+    return UserResponseSchema.model_validate(new_user)
 
 
 @auth_router.post(path='/login', response_model=Token)

@@ -11,6 +11,13 @@ class CreateUserRequestSchema(BaseSchema):
     password: str = Field(min_length=6, max_length=128)
 
 
+class UserResponseSchema(BaseSchema):
+    """Pydantic model for user response."""
+    id: int = Field()
+    username: str = Field(min_length=3, max_length=64)
+
+
+
 class Token(BaseSchema):
     """Pydantic model for token."""
 

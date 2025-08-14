@@ -1,32 +1,64 @@
-from typing import Any, TypeVar
+import datetime as dt
+from typing import Any, TypeVar, cast, Sequence
 
-from core.db import Base, new_session
-from sqlalchemy import select, update
-from sqlalchemy.engine.result import Result
-from sqlalchemy.sql.dml import Delete, Update
+from sqlalchemy import (
+    Delete,
+    Result,
+    Select,
+    Update,
+    and_,
+    desc,
+    or_,
+    select,
+    update,
+)
 from sqlalchemy.sql.expression import insert
-from sqlalchemy.sql.selectable import Select
 
 from base.abstract.repository import AbstractRepository
+from core.db import Base, new_session
 
 Model = TypeVar('Model', bound=Base)
 
 class SQLAlchemyRepository(AbstractRepository):
     model = None
 
-    async def create_one(self, data: dict) -> int:
+    async def create_one(self, data: dict) -> Model:
         async with new_session() as session:
-            stmt = insert(self.model).values(**data).returning(self.model.id)
+            stmt = insert(self.model).values(**data).returning(self.model)
             res = await session.execute(stmt)
             await session.commit()
             return res.scalar_one()
 
-    async def get_all_or_by_filter(self, **filtered_by) -> list[dict]:
+    async def get_all(
+            self,
+            created_at: dt.datetime | None = None,
+            last_id: int | None = None,
+            limit: int | None = None,
+            order_by: list[str] | None = None,
+            *filters: Any,
+            **filters_by: Any,
+    ) -> list[Model] | None:
         async with new_session() as session:
-            stmt = select(self.model).where(*filtered_by)
-            instance = await session.execute(stmt)
-            res = [row[0].to_read_model() for row in instance.all()]
-            return res
+            pagination = []
+            if created_at and last_id:
+                pagination = [
+                    or_(
+                        self.model.created_at < created_at,  # type: ignore
+                        and_(
+                            self.model.created_at == created_at,  # type: ignore
+                            self.model.id < last_id,  # type: ignore
+                        ),
+                    )
+                ]
+            query: Select[Any] = (
+                select(self.model)
+                .where(*filters, *pagination)
+                .filter_by(**filters_by)
+            )
+            if limit:
+                query = query.limit(limit)
+            result = await session.execute(query)
+            return cast(list[Model], result.scalars().all())
 
     async def _get(self, *filters: Any, **filters_by: Any) -> Result[Any]:
         """Execute a database query with the specified filters.
@@ -74,3 +106,30 @@ class SQLAlchemyRepository(AbstractRepository):
                 Delete(self.model).where(*filters).filter_by(**filters_by)
             )
             await session.execute(query)
+
+    async def get_ids_by_lst(self, lst: list[str]) -> list[model]:
+        async with new_session() as session:
+            res = await session.execute(
+                select(self.model).where(self.model.name.in_(lst))
+            )
+            return list(res.scalars())
+
+    async def add_many_to_many(
+            self,
+            obj: Model,
+            rel_attr: str,
+            items: Sequence[Model],
+    ):
+        async with new_session() as session:
+            obj = await session.merge(obj)
+            items_attached = [await session.merge(it) for it in items]
+
+            rel_list = getattr(obj, rel_attr)
+            existing = set(rel_list)
+            for it in items_attached:
+                if it not in existing:
+                    rel_list.append(it)
+
+            await session.commit()
+            await session.refresh(obj)
+            return obj

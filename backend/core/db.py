@@ -7,13 +7,20 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import declarative_base
 
+from core.settings import ASYNC_DATABASE_URL, DEBUG
+
 logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
-engine = create_async_engine("sqlite+aiosqlite:///books.db")
+if DEBUG:
+    engine = create_async_engine("sqlite+aiosqlite:///books.db")
+else:
+    engine = create_async_engine(ASYNC_DATABASE_URL, echo=False, future=True)
 
 new_session = async_sessionmaker(engine, expire_on_commit=False)
+
+
 
 
 async def create_tables() -> None:
@@ -46,6 +53,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession]:
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Lifespan context manager for FastAPI application.
     """
+    await delete_tables()
     await create_tables()
     try:
         yield
