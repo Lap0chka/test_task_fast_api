@@ -53,7 +53,6 @@ async def get_async_session() -> AsyncGenerator[AsyncSession]:
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Lifespan context manager for FastAPI application.
     """
-    await delete_tables()
     await create_tables()
     try:
         yield

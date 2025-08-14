@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import List
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
@@ -29,7 +30,7 @@ class BookService(BaseService):
         await self.repo.add_many_to_many(book, "authors", authors)
         return book
 
-    async def get_all_courses(
+    async def get_all_books(
             self,
             created_at: dt.datetime | None = None,
             last_id: int | None = None,
@@ -52,6 +53,9 @@ class BookService(BaseService):
             raise AuthorNotExistException()
         return authors
 
+    async def search_books(self, query: str, limit: int, offset: int) -> List[BookModel]:
+        return await self.repo.get_all(query=query, limit=limit, offset=offset)
+
     async def get_book(
             self,
             book_id: int,
@@ -66,7 +70,7 @@ class BookService(BaseService):
             raise BookNotFoundByIdException
         return book
 
-    async def update_course(
+    async def update_book(
             self,
             book_id: int,
             book_fields: BookBase,
@@ -97,7 +101,6 @@ class BookService(BaseService):
         )
         if not deleted_book:
             raise BookNotFoundByIdException
-
 
 
 class AuthorService(BaseService):

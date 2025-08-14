@@ -133,3 +133,5 @@ class SQLAlchemyRepository(AbstractRepository):
             await session.commit()
             await session.refresh(obj)
             return obj
+
+

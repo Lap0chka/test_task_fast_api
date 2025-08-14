@@ -1,10 +1,10 @@
 import datetime as dt
-import uuid
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends
+from fastapi import Query
 
-from auth.dependencies import PermissionDependency, get_user_from_jwt
+from auth.dependencies import PermissionDependency
 from base.dependencies import get_service
 from base.schema import DeleteResponse
 from books.models import BookModel
@@ -19,7 +19,9 @@ book_router = APIRouter(
     dependencies=[Depends(PermissionDependency([Is_Authenticated]))],
 )
 
-author_router = APIRouter(prefix=f'{API_URL}/authors', tags=["authors"])
+author_router = APIRouter(
+    prefix=f'{API_URL}/authors',
+    tags=["authors"], dependencies=[Depends(PermissionDependency([Is_Authenticated]))])
 
 
 
@@ -33,7 +35,7 @@ async def get_all_books(
     """
     Retrieve a list of all available book with optional filtering.
     """
-    books: list[BookModel] = await service.get_all_courses(
+    books: list[BookModel] = await service.get_all_books(
         created_at, last_id, limit
     )
     return [BookOutSchema.model_validate(c) for c in books]
@@ -60,8 +62,23 @@ async def get_course(
     book = await service.get_book(book_id)
     return BookOutSchema.model_validate(book)
 
+
+@book_router.get('/search', response_model=List[BookOutSchema])
+async def search_books(
+        query: str = Query(..., min_length=1, description="Title or author to search"),
+        limit: int = Query(20, ge=1, le=100),
+        offset: int = Query(0, ge=0),
+        service: Annotated[BookService, Depends(get_service(BookService))] = None,
+) -> list[BookOutSchema]:
+    """
+    Case-insensitive + fuzzy search by title or author.
+    Example: query='Harry Potter' → finds 'Harry Potter and the Sorcerer’s Stone'.
+    """
+    results = await service.search_books(query=query, limit=limit, offset=offset)
+    return [BookOutSchema.model_validate(b) for b in results]
+
 @book_router.patch('/{book_id}', response_model=BookOutSchema)
-async def update_course(
+async def update_book(
         book_id: int,
         book_fields: BookBase,
         service: Annotated[BookService, Depends(get_service(BookService))],

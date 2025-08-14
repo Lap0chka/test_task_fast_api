@@ -1,10 +1,5 @@
-from sqlalchemy import (
-    select,
-)
-
 from base.repository import SQLAlchemyRepository
-from books.models import BookModel, AuthorModel
-from core.db import new_session
+from .models import BookModel, AuthorModel
 
 
 class BookRepository(SQLAlchemyRepository):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, List
 
 from pydantic import Field, field_validator
 from pydantic import field_serializer
@@ -50,3 +50,11 @@ class BookOutSchema(BaseSchema):
 
 class AuthorSchema(BaseSchema):
     name: str
+
+
+class BulkUploadResult(BaseSchema):
+    total: int
+    created: int
+    failed: int
+    created_ids: List[int]
+    errors: List[dict]

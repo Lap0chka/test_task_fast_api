@@ -32,3 +32,14 @@ class ForgottenParametersException(HTTPException):
             status_code=422,
             detail='Not all parameters was filled',
         )
+
+
+class BulkUploadException(HTTPException):
+    """Custom exception for when a forgotten parameter is missing."""
+
+    def __init__(self) -> None:
+        """Initialize the ForgottenParametersException with status 422."""
+        super().__init__(
+            status_code=422,
+            detail='Please provide correct json [{ "title": "...", "authors": ["...","..."], "published_year": 1997 }, ...]',
+        )
