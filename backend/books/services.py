@@ -45,6 +45,7 @@ class BookService(BaseService):
         return books if books else []
 
     async def fetch_author(self, author_names: list) -> list[AuthorModel]:
+        """Fetch author data for books."""
         authors = await self.author_repo.get_ids_by_lst(author_names)
         if not authors:
             raise AuthorNotExistException()
@@ -53,6 +54,8 @@ class BookService(BaseService):
     async def search_books(
         self, query: str, limit: int, offset: int
     ) -> List[BookModel]:
+        """Search for books matching the query."""
+
         return await self.repo.get_all(query=query, limit=limit, offset=offset)
 
     async def get_book(

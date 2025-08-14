@@ -94,6 +94,7 @@ async def delete_book(
     book_id: int,
     service: Annotated[BookService, Depends(get_service(BookService))],
 ) -> DeleteResponse:
+    """Endpoint to delete a book."""
     await service.delete_book(book_id)
     return DeleteResponse(status="deleted")
 

@@ -16,6 +16,7 @@ class SQLAlchemyRepository(AbstractRepository):
     model = None
 
     async def create_one(self, data: dict, return_session=False) -> Model:
+        """Create a new one object by dict"""
         async with new_session() as session:
             stmt = insert(self.model).values(**data).returning(self.model)
             res = await session.execute(stmt)
@@ -31,6 +32,9 @@ class SQLAlchemyRepository(AbstractRepository):
         *filters: Any,
         **filters_by: Any,
     ) -> list[Model] | None:
+        """"
+        Get all objects by default all by parameters and return models
+        """
         async with new_session() as session:
             pagination = []
             if created_at and last_id:
@@ -105,6 +109,9 @@ class SQLAlchemyRepository(AbstractRepository):
             return res.rowcount or 0
 
     async def get_ids_by_lst(self, lst: list[str]) -> list[model]:
+        """"
+            Get ids by lst
+        """
         async with new_session() as session:
             res = await session.execute(
                 select(self.model).where(self.model.name.in_(lst))
@@ -117,6 +124,9 @@ class SQLAlchemyRepository(AbstractRepository):
         rel_attr: str,
         items: Sequence[Model],
     ):
+        """
+        Add many to many field to object
+        """
         async with new_session() as session:
             obj = await session.merge(obj)
             items_attached = [await session.merge(it) for it in items]

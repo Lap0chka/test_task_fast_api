@@ -5,14 +5,14 @@ from sqlalchemy import TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-class BaseUUIDModel(Base):
+class BaseIDModel(Base):
     """Base model for a UUID primary key."""
 
     __abstract__ = True
     id: Mapped[int] = mapped_column(primary_key=True)
 
 
-class BaseTimeStampModel(BaseUUIDModel):
+class BaseTimeStampModel(BaseIDModel):
     """Base model for timestamp fields."""
 
     __abstract__ = True

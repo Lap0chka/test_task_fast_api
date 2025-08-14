@@ -13,6 +13,7 @@ def clean_empty_values(value):
 
 
 def clean_date(value):
+
     current_year = datetime.now().year
     if value is None:
         raise ValueError(f"published_year must be between 1800 and {current_year}")

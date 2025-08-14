@@ -1,8 +1,9 @@
 from typing import final
 
-from books.exceptions import ForgottenParametersException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from books.exceptions import ForgottenParametersException
 
 
 class BaseService:
@@ -22,6 +23,8 @@ class BaseService:
     def _validate_schema_for_update_request(
         schema: BaseModel,
     ) -> dict[str, str]:
+        """Validate schema for update request"""
+        
         schema_fields: dict[str, str] = schema.model_dump(
             exclude_none=True,
             exclude_unset=True,
