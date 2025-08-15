@@ -3,7 +3,7 @@ from logging.config import dictConfig
 
 LOGGING_CONFIG = {
     "version": 1,
-    "disable_existing_loggers": False,  # чтобы не отключать логи uvicorn
+    "disable_existing_loggers": False,
     "formatters": {
         "default": {
             "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
