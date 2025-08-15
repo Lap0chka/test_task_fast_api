@@ -3,6 +3,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from core.logger_config import setup_logging
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,3 +42,5 @@ ALLOWED_GENRES = (
     "History",
     "Biography",
 )
+
+setup_logging()
